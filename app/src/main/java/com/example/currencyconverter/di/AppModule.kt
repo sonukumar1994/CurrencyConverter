@@ -9,7 +9,6 @@ import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
@@ -19,14 +18,18 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import dagger.hilt.components.SingletonComponent
 
 @Module
-@InstallIn(ActivityComponent::class)
+@InstallIn(SingletonComponent::class)
 class AppModule {
     //API Base Url
     @Provides
     fun providesBaseUrl() = Constant.BASE_URL
 
+    //Gson for converting JSON String to Java Objects
+    @Provides
+    fun providesGson() : Gson = GsonBuilder().setLenient().create()
 
     //Retrofit for networking
     @Provides
@@ -60,7 +63,4 @@ class AppModule {
     @Singleton
     fun provideApiDatSource(apiService: ApiService) = ApiDataSource(apiService)
 
-    /*//Gson for converting JSON String to Java Objects
-    @Provides
-    fun providesGson() : Gson = GsonBuilder().setLenient().create()*/
 }
