@@ -17,7 +17,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.currencyconverter.R
 import com.example.currencyconverter.databinding.FragmentCurrencyConverterBinding
 import com.example.currencyconverter.helper.Constant
+import com.example.currencyconverter.helper.Resource
 import com.example.currencyconverter.helper.Utility
+import com.example.currencyconverter.model.DataInfo
 import com.example.currencyconverter.viewmodel.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,10 +39,6 @@ class CurrencyConverterFragment : Fragment() {
 
     private var fromSelectedItem: String? = "AFN"
     private var toSelectedItem: String? = "AFN"
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,7 +62,7 @@ class CurrencyConverterFragment : Fragment() {
     }
 
     private fun setTextWatcher() {
-        mViewBinding.fromEdittext.addTextChangedListener(object :TextWatcher{
+        mViewBinding.fromEdittext.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
             }
@@ -73,37 +71,41 @@ class CurrencyConverterFragment : Fragment() {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                checkAmount(s.toString())
+                checkAmount()
             }
 
         })
     }
 
-    private fun checkAmount(amount:String) {
+    private fun checkAmount() {
+        val amount = mViewBinding.fromEdittext.text.toString()
+        if (amount.isEmpty() || amount == "0") {
 
-        if(amount.isEmpty() || amount == "0"){
-            Snackbar.make(mViewBinding.llMain,"Input a value in the first text field, result will be shown in the second text field", Snackbar.LENGTH_LONG)
-                //.view.setBackgroundColor(ContextCompat.getColor(activity, R.color.dark_red))
-                .show()
         }
-
         //check if internet is available
-        else if (!Utility.isNetworkAvailable(activity)){
-            Snackbar.make(mViewBinding.llMain,"You are not connected to the internet", Snackbar.LENGTH_LONG)
+        else if (!Utility.isNetworkAvailable(activity)) {
+            Snackbar.make(
+                mViewBinding.llMain,
+                "You are not connected to the internet",
+                Snackbar.LENGTH_LONG
+            )
 //                .withColor(ContextCompat.getColor(activity, R.color.dark_red))
 //                .setTextColor(ContextCompat.getColor(activity, R.color.white))
                 .show()
         }
 
         //carry on and convert the value
-        else{
+        else {
             convertAmount()
         }
     }
 
     private fun setListener() {
         mViewBinding.btnDetails.setOnClickListener {
-            findNavController().navigate(R.id.action_currencyConverterFragment_to_detailsFragment)
+            val dataInfo = DataInfo(fromSelectedItem, toSelectedItem)
+            val action =
+                CurrencyConverterFragmentDirections.actionCurrencyConverterFragmentToDetailsFragment(dataInfo)
+            findNavController().navigate(action)
         }
 
         mViewBinding.fromSpinner.onItemSelectedListener =
@@ -118,6 +120,7 @@ class CurrencyConverterFragment : Fragment() {
                     val countryCode = getCountryCode(allLanguages.get(position))
                     val currencySymbol = getSymbol(countryCode)
                     fromSelectedItem = currencySymbol
+                    checkAmount()
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -136,6 +139,7 @@ class CurrencyConverterFragment : Fragment() {
                     val countryCode = getCountryCode(allLanguages.get(position))
                     val currencySymbol = getSymbol(countryCode)
                     toSelectedItem = currencySymbol
+                    checkAmount()
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -186,21 +190,41 @@ class CurrencyConverterFragment : Fragment() {
     }
 
     private fun setObserver() {
-        activity?.let {
-            viewModel.data.observe(it) {
-                Log.d("CurrencyConverterFrag", it.message.toString())
+        activity?.let { activity1 ->
+            viewModel.convertedData.observe(activity1) {
+                when (it.status) {
+                    Resource.Status.SUCCESS -> {
+                        val result = it.data
+                        if (result?.success == true) {
+                            val formattedString = String.format("%,.2f", result.result)
+                            mViewBinding.toTextview.text = formattedString
+                        }
+                    }
+                    Resource.Status.ERROR -> {
+                        Snackbar.make(
+                            mViewBinding.llMain,
+                            "Ooops! something went wrong, Try again",
+                            Snackbar.LENGTH_LONG
+                        )
+                            // .withColor(ContextCompat.getColor(this, R.color.dark_red))
+                            // .setTextColor(ContextCompat.getColor(this, R.color.white))
+                            .show()
+                    }
+                    Resource.Status.LOADING -> {
+
+                    }
+                }
             }
         }
     }
 
     private fun convertAmount() {
-        val apiKey = Constant.API_KEY
         val from = fromSelectedItem.toString()
         val to = toSelectedItem.toString()
         val amount = mViewBinding.fromEdittext.text.toString().toDouble()
 
         //do the conversion
-        viewModel.getConvertedCurrency(apiKey, from, to, amount)
+        viewModel.getConvertedCurrency( from, to, amount)
     }
 
 }
