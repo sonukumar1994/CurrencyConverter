@@ -45,6 +45,12 @@ class AppModule {
                 client.connectTimeout(120, TimeUnit.SECONDS)
                 client.readTimeout(120, TimeUnit.SECONDS)
                 client.protocols(Collections.singletonList(Protocol.HTTP_1_1))
+                    .addInterceptor{ chain ->
+                        val newRequest = chain.request().newBuilder()
+                            .addHeader("apikey", Constant.API_KEY)
+                            .build()
+                        chain.proceed(newRequest)
+                    }
             }
         }.build()
         )

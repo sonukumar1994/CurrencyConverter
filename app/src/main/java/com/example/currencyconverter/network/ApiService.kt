@@ -10,7 +10,6 @@ interface ApiService {
 
     @GET(Constant.CONVERT_URL)
     suspend fun convertCurrency(
-        @Query("access_key") access_key: String,
         @Query("from") from: String,
         @Query("to") to: String,
         @Query("amount") amount: Double

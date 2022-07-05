@@ -5,25 +5,40 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
+        android:id="@+id/ll_main"
         android:layout_height="match_parent"
         tools:context=".fragment.CurrencyConverterFragment">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="From"
+            app:layout_constraintBottom_toTopOf="@id/from_spinner"
+            app:layout_constraintStart_toStartOf="@id/from_spinner" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To"
+            app:layout_constraintBottom_toTopOf="@id/to_spinner"
+            app:layout_constraintStart_toStartOf="@id/to_spinner" />
 
         <Spinner
             android:id="@+id/from_spinner"
-            android:layout_width="@dimen/dp_100"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/dp_50"
+            android:layout_width="@dimen/dp_130"
+            android:layout_height="@dimen/margin_40"
+            android:layout_marginLeft="@dimen/margin_40"
             android:layout_marginTop="@dimen/dp_50"
             android:background="@drawable/bg_spinner"
             android:entries="@array/spinner_list"
-            android:padding="@dimen/dp_8"
+            android:paddingLeft="@dimen/dp_8"
+            android:paddingRight="@dimen/dp_8"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/margin_40"
             android:background="@drawable/bg_border"
             android:padding="@dimen/dp_3"
             android:src="@drawable/both_side_arrow"
@@ -35,52 +50,67 @@
 
         <Spinner
             android:id="@+id/to_spinner"
-            android:layout_width="@dimen/dp_100"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/dp_130"
+            android:layout_height="@dimen/margin_40"
             android:layout_marginTop="@dimen/dp_50"
-            android:layout_marginRight="@dimen/dp_50"
+            android:layout_marginRight="@dimen/margin_40"
             android:background="@drawable/bg_spinner"
             android:entries="@array/spinner_list"
             android:padding="@dimen/dp_8"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Amount"
+            app:layout_constraintBottom_toTopOf="@id/from_edittext"
+            app:layout_constraintStart_toStartOf="@id/from_edittext" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Result"
+            app:layout_constraintBottom_toTopOf="@id/to_textview"
+            app:layout_constraintStart_toStartOf="@id/to_textview" />
+
         <EditText
             android:id="@+id/from_edittext"
+            android:layout_width="@dimen/dp_130"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_50"
             android:background="@drawable/bg_border"
-            app:layout_constraintStart_toStartOf="@id/from_spinner"
-            app:layout_constraintTop_toBottomOf="@id/from_spinner"
-            android:layout_marginTop="@dimen/margin_40"
-            android:text="1"
             android:ellipsize="start"
             android:gravity="center"
-            android:textSize="@dimen/sp_16"
-            android:textColor="@color/black"
             android:inputType="numberDecimal"
             android:padding="@dimen/dp_8"
-            android:layout_width="@dimen/dp_100"
-            android:layout_height="wrap_content"/>
+            android:text="1"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintStart_toStartOf="@id/from_spinner"
+            app:layout_constraintTop_toBottomOf="@id/from_spinner" />
+
         <TextView
             android:id="@+id/to_textview"
+            android:layout_width="@dimen/dp_130"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_50"
             android:background="@drawable/bg_border"
-            app:layout_constraintStart_toStartOf="@id/to_spinner"
-            app:layout_constraintTop_toBottomOf="@id/to_spinner"
-            android:layout_marginTop="@dimen/margin_40"
-            android:textSize="@dimen/sp_16"
-            android:text="1"
             android:gravity="center"
-            android:textColor="@color/black"
             android:padding="@dimen/dp_8"
-            android:layout_width="@dimen/dp_100"
-            android:layout_height="wrap_content"/>
+            android:text="0"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintStart_toStartOf="@id/to_spinner"
+            app:layout_constraintTop_toBottomOf="@id/to_spinner" />
 
         <Button
             android:id="@+id/btn_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_40"
-            android:text="@string/str_details"
             android:padding="@dimen/dp_8"
+            android:text="@string/str_details"
             android:textAllCaps="false"
             android:textSize="@dimen/sp_16"
             app:layout_constraintEnd_toEndOf="parent"
