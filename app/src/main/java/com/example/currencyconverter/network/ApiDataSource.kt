@@ -7,7 +7,10 @@ class ApiDataSource @Inject constructor(private val apiService: ApiService){
         apiService.convertCurrency(from,to,amount)
 
 
-    suspend fun getTimeSeriesData( startDate: String, endDate: String, base: String,symbols:String)=
-        apiService.getTimeSeriesData(startDate,endDate,base,symbols)
+    suspend fun getHistoryRates( startDate: String, endDate: String, base: String,symbols:String)=
+        apiService.getHistoryRates(startDate,endDate,base,symbols)
+
+    suspend fun getLatestRates( base: String)=
+        apiService.getLatestRates(base)
 
 }

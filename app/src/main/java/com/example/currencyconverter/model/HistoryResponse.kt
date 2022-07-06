@@ -1,8 +1,11 @@
 package com.example.currencyconverter.model
 
-data class SeriesDataModel(
+import com.google.gson.annotations.SerializedName
+
+data class HistoryResponse(
     val success: Boolean,
+    @SerializedName("base")
     val base: String,
-    val date: String,
+    @SerializedName("rates")
     val rates: HashMap<String, HashMap<String, Double>>
 )

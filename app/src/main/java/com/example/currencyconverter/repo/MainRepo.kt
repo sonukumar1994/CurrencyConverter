@@ -2,14 +2,14 @@ package com.example.currencyconverter.repo
 
 import com.example.currencyconverter.helper.Resource
 import com.example.currencyconverter.model.CurrencyConvertedResultModel
-import com.example.currencyconverter.model.SeriesDataModel
+import com.example.currencyconverter.model.HistoryResponse
+import com.example.currencyconverter.model.LatestResponse
 import com.example.currencyconverter.network.ApiDataSource
 import com.example.currencyconverter.network.BaseDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import java.text.DateFormatSymbols
 
 
 import javax.inject.Inject
@@ -26,14 +26,22 @@ class MainRepo @Inject constructor(private val apiDataSource: ApiDataSource) : B
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun getTimeSeriesData(
+    suspend fun getHistoryRates(
         startDate: String,
         endDate: String,
         base: String,
         symbols: String
-    ): Flow<Resource<SeriesDataModel>> {
+    ): Flow<Resource<HistoryResponse>> {
         return flow {
-            emit(safeApiCall { apiDataSource.getTimeSeriesData(startDate, endDate, base, symbols) })
+            emit(safeApiCall { apiDataSource.getHistoryRates(startDate, endDate, base, symbols) })
+        }.flowOn(Dispatchers.IO)
+    }
+
+    suspend fun getLatestRates(
+        base: String
+    ): Flow<Resource<LatestResponse>> {
+        return flow {
+            emit(safeApiCall { apiDataSource.getLatestRates(base) })
         }.flowOn(Dispatchers.IO)
     }
 }

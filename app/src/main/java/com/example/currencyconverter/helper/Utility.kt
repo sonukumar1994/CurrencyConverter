@@ -11,6 +11,8 @@ import android.view.inputmethod.InputMethodManager
 
 object Utility {
     //hide keyboard
+    val countryWithCurrencyCodeMap=HashMap<String,String>()
+
     fun hideKeyboard(activity: Activity) {
         val imm: InputMethodManager =
             activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -59,5 +61,7 @@ object Utility {
             w.statusBarColor = Color.TRANSPARENT
         }
     }
+
+
 
 }

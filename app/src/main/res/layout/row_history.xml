@@ -2,10 +2,14 @@
 <layout xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+<import type="android.view.View"/>
         <variable
             name="data"
             type="com.example.currencyconverter.model.Rates" />
+
+        <variable
+            name="isOtherCountryCaller"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -19,29 +23,42 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_5"
             android:layout_marginTop="@dimen/dp_5"
-            android:text="@{data.date}"
+            android:text="@{data.key}"
+            android:textStyle="bold"
+            android:textSize="@dimen/sp_16"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="22/3/33" />
 
         <TextView
+            tools:text="India"
+            android:visibility="@{isOtherCountryCaller ? View.VISIBLE : View.GONE}"
+            android:text="@{data.countryName}"
+            app:layout_constraintTop_toBottomOf="@id/tv_date"
+            app:layout_constraintStart_toStartOf="@id/tv_date"
+            android:id="@+id/tv_country_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
             android:id="@+id/tv_rate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/dp_5"
             android:layout_marginTop="@dimen/dp_5"
-            android:text="@{data.rate.toString()}"
+            android:layout_marginEnd="@dimen/dp_5"
+            android:text="@{String.format(@string/generic_text, data.rate)}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_date"
+            app:layout_constraintBottom_toBottomOf="@id/tv_country_name"
             tools:text="2.33" />
 
         <View
             android:layout_width="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:background="@color/dark_gray"
-            app:layout_constraintTop_toBottomOf="@id/tv_date"
+            android:layout_height="1dp"
             android:layout_marginTop="@dimen/dp_5"
-            android:layout_height="1dp"/>
+            android:background="@color/dark_gray"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_country_name" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -2,7 +2,8 @@ package com.example.currencyconverter.network
 
 import com.example.currencyconverter.helper.Constant
 import com.example.currencyconverter.model.CurrencyConvertedResultModel
-import com.example.currencyconverter.model.SeriesDataModel
+import com.example.currencyconverter.model.HistoryResponse
+import com.example.currencyconverter.model.LatestResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -17,10 +18,15 @@ interface ApiService {
     ): Response<CurrencyConvertedResultModel>
 
     @GET(Constant.TIME_SERIES_URL)
-    suspend fun getTimeSeriesData(
+    suspend fun getHistoryRates(
         @Query("start_date") start_date: String,
         @Query("end_date") end_date: String,
         @Query("base") base: String,
-        @Query("symbols") symbols:String
-    ): Response<SeriesDataModel>
+        @Query("symbols") symbols: String
+    ): Response<HistoryResponse>
+
+    @GET(Constant.LATEST_URL)
+   suspend fun getLatestRates(
+        @Query("base") base: String
+    ): Response<LatestResponse>
 }

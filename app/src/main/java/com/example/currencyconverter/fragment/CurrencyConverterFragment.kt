@@ -104,7 +104,9 @@ class CurrencyConverterFragment : Fragment() {
         mViewBinding.btnDetails.setOnClickListener {
             val dataInfo = DataInfo(fromSelectedItem, toSelectedItem)
             val action =
-                CurrencyConverterFragmentDirections.actionCurrencyConverterFragmentToDetailsFragment(dataInfo)
+                CurrencyConverterFragmentDirections.actionCurrencyConverterFragmentToDetailsFragment(
+                    dataInfo
+                )
             findNavController().navigate(action)
         }
 
@@ -170,10 +172,16 @@ class CurrencyConverterFragment : Fragment() {
             val country = locale.displayCountry
             if (country.trim { it <= ' ' }.isNotEmpty() && !countries.contains(country)) {
                 countries.add(country)
+                getSymbol(getCountryCode(country))?.let {
+                    Utility.countryWithCurrencyCodeMap.put(
+                        it,
+                        country
+                    )
+                }
+
             }
         }
         countries.sort()
-
         return countries
     }
 
@@ -224,7 +232,7 @@ class CurrencyConverterFragment : Fragment() {
         val amount = mViewBinding.fromEdittext.text.toString().toDouble()
 
         //do the conversion
-        viewModel.getConvertedCurrency( from, to, amount)
+        viewModel.getConvertedCurrency(from, to, amount)
     }
 
 }

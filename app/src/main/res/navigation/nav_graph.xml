@@ -8,8 +8,8 @@
     <fragment
         android:id="@+id/currencyConverterFragment"
         android:name="com.example.currencyconverter.fragment.CurrencyConverterFragment"
-        android:label="fragment_currency_converter"
-        tools:layout="@layout/fragment_currency_converter" >
+        android:label="Currency Converter"
+        tools:layout="@layout/fragment_currency_converter">
         <action
             android:id="@+id/action_currencyConverterFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
@@ -17,8 +17,8 @@
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.example.currencyconverter.fragment.DetailsFragment"
-        android:label="fragment_details"
-        tools:layout="@layout/fragment_details" >
+        android:label="History"
+        tools:layout="@layout/fragment_details">
         <argument
             android:name="dataInfo"
             app:argType="com.example.currencyconverter.model.DataInfo" />
