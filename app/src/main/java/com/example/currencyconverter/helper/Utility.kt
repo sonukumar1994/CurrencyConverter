@@ -53,15 +53,4 @@ object Utility {
         return false
     }
 
-    fun makeStatusBarTransparent(activity: Activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val decor = activity.window.decorView
-            decor.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            val w = activity.window
-            w.statusBarColor = Color.TRANSPARENT
-        }
-    }
-
-
-
 }

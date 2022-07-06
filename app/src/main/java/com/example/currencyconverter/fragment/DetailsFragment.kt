@@ -25,6 +25,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,8 +42,6 @@ class DetailsFragment : Fragment() {
     private var toCurrency: String? = null
     private lateinit var startDate: String
     private lateinit var endDate: String
-    val inDateFormat = SimpleDateFormat("yyyy-MM-dd")
-    val dateFormat = SimpleDateFormat("dd MMM yy")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,10 +78,18 @@ class DetailsFragment : Fragment() {
 
     private fun getHistoryRates() {
         // Rates against selected from and to currency
-        viewModel.getHistoryRates(startDate, endDate, fromCurrency!!, toCurrency!!)
-
-        // Other Currency
-        viewModel.getLatestRates(fromCurrency!!)
+        if (!Utility.isNetworkAvailable(activity)) {
+            Snackbar.make(
+                mViewBinding.llMain,
+                getString(R.string.network_error),
+                Snackbar.LENGTH_LONG
+            ).show()
+        } else {
+            mViewBinding.progressBar.visibility=View.VISIBLE
+            viewModel.getHistoryRates(startDate, endDate, fromCurrency!!, toCurrency!!)
+            // Other Currency
+            viewModel.getLatestRates(fromCurrency!!)
+        }
     }
 
     private fun setObserver() {
@@ -90,17 +97,29 @@ class DetailsFragment : Fragment() {
             viewModel.historyRates.observe(activit) {
                 when (it.status) {
                     Resource.Status.SUCCESS -> {
+                        mViewBinding.progressBar.visibility=View.GONE
                         val result = it.data
                         if (result?.success == true) {
                             setHistoryRecyclerAdapter(parseDataToList(result.rates))
                             showHistoryRates(result)
+                        }else{
+                            Snackbar.make(
+                                mViewBinding.llMain,
+                                getString(R.string.error_message),
+                                Snackbar.LENGTH_LONG
+                            ).show()
                         }
                     }
                     Resource.Status.ERROR -> {
-
+                        mViewBinding.progressBar.visibility=View.GONE
+                        Snackbar.make(
+                            mViewBinding.llMain,
+                            getString(R.string.error_message),
+                            Snackbar.LENGTH_LONG
+                        ).show()
                     }
                     Resource.Status.LOADING -> {
-
+                        mViewBinding.progressBar.visibility=View.VISIBLE
                     }
                 }
             }
@@ -116,7 +135,11 @@ class DetailsFragment : Fragment() {
                         }
                     }
                     Resource.Status.ERROR -> {
-
+                        Snackbar.make(
+                            mViewBinding.llMain,
+                            getString(R.string.error_message),
+                            Snackbar.LENGTH_LONG
+                        ).show()
                     }
                     Resource.Status.LOADING -> {
 
@@ -126,12 +149,14 @@ class DetailsFragment : Fragment() {
         }
     }
 
-    fun parseDataToList(map: HashMap<String, HashMap<String, Double>>): List<Rates> {
+    private fun parseDataToList(map: HashMap<String, HashMap<String, Double>>): List<Rates> {
         val list = ArrayList<Rates>()
         map.keys.forEach { key ->
             val result1 = map[key]
             result1?.keys?.forEach { key2 ->
                 val rate = result1[key2]
+                val inDateFormat = SimpleDateFormat("yyyy-MM-dd")
+                val dateFormat = SimpleDateFormat("dd MMM yy")
                 val newDate: Date = inDateFormat.parse(key)
                 val newFormatDate = dateFormat.format(newDate)
                 list.add(Rates(newFormatDate, rate))
@@ -142,7 +167,7 @@ class DetailsFragment : Fragment() {
 
 
     private fun setHistoryRecyclerAdapter(list: List<Rates>) {
-        val historyAdapter = HistoryRecyclerAdapter(list,false)
+        val historyAdapter = HistoryRecyclerAdapter(list, false)
         mViewBinding.historyRecycler.layoutManager = LinearLayoutManager(activity)
         mViewBinding.historyRecycler.adapter = historyAdapter
     }
@@ -150,11 +175,11 @@ class DetailsFragment : Fragment() {
     private fun setOtherCountryHistoryRecyclerAdapter(ratesMap: Map<String, Double>) {
         val ratesList = ArrayList<Rates>()
         ratesMap.keys.forEach { key ->
-           val rate= Rates(key, ratesMap[key])
-            rate.countryName=Utility.countryWithCurrencyCodeMap[key]
+            val rate = Rates(key, ratesMap[key])
+            rate.countryName = Utility.countryWithCurrencyCodeMap[key]
             ratesList.add(rate)
         }
-        val historyAdapter = HistoryRecyclerAdapter(ratesList,true)
+        val historyAdapter = HistoryRecyclerAdapter(ratesList, true)
         mViewBinding.otherCurrencyHistoryList.layoutManager = LinearLayoutManager(activity)
         mViewBinding.otherCurrencyHistoryList.adapter = historyAdapter
     }

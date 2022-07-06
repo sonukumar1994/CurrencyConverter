@@ -37,8 +37,13 @@ class CurrencyConverterFragment : Fragment() {
     private val viewModel: MainViewModel by viewModels()
     val allLanguages = getAllCountries()
 
-    private var fromSelectedItem: String? = "AFN"
-    private var toSelectedItem: String? = "AFN"
+    private var fromSelectedCountry: String? = "United States"
+    private var toSelectedCountry: String? = "India"
+
+    private var fromSelectedCurrency: String? = "USD"
+    private var toSelectedCurrency: String? = "INR"
+
+    //  private var isApiCalled: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,26 +63,26 @@ class CurrencyConverterFragment : Fragment() {
         setListener()
         setObserver()
         setSpinnerItems()
-        setTextWatcher()
+        // setTextWatcher()
     }
 
-    private fun setTextWatcher() {
-        mViewBinding.fromEdittext.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+    /*  private fun setTextWatcher() {
+          mViewBinding.fromEdittext.addTextChangedListener(object : TextWatcher {
+              override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
 
-            }
+              }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
+              override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+              }
 
-            override fun afterTextChanged(s: Editable?) {
-                checkAmount()
-            }
+              override fun afterTextChanged(s: Editable?) {
+                  checkAmount()
+              }
 
-        })
-    }
+          })
+      }*/
 
-    private fun checkAmount() {
+    private fun checkValidationAmount() {
         val amount = mViewBinding.fromEdittext.text.toString()
         if (amount.isEmpty() || amount == "0") {
 
@@ -86,28 +91,38 @@ class CurrencyConverterFragment : Fragment() {
         else if (!Utility.isNetworkAvailable(activity)) {
             Snackbar.make(
                 mViewBinding.llMain,
-                "You are not connected to the internet",
+                getString(R.string.network_error),
                 Snackbar.LENGTH_LONG
-            )
-//                .withColor(ContextCompat.getColor(activity, R.color.dark_red))
-//                .setTextColor(ContextCompat.getColor(activity, R.color.white))
-                .show()
-        }
-
-        //carry on and convert the value
-        else {
-            convertAmount()
+            ).show()
+        } else {
+            callConvertAmountApi()
         }
     }
 
     private fun setListener() {
-        mViewBinding.btnDetails.setOnClickListener {
-            val dataInfo = DataInfo(fromSelectedItem, toSelectedItem)
-            val action =
-                CurrencyConverterFragmentDirections.actionCurrencyConverterFragmentToDetailsFragment(
-                    dataInfo
-                )
-            findNavController().navigate(action)
+        mViewBinding.btnHistory.setOnClickListener {
+            if (!Utility.isNetworkAvailable(activity)) {
+                Snackbar.make(
+                    mViewBinding.llMain,
+                    getString(R.string.network_error),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            } else {
+                val dataInfo = DataInfo(fromSelectedCurrency, toSelectedCurrency)
+                val action =
+                    CurrencyConverterFragmentDirections.actionCurrencyConverterFragmentToDetailsFragment(
+                        dataInfo
+                    )
+                findNavController().navigate(action)
+            }
+        }
+
+        mViewBinding.btnConvert.setOnClickListener {
+            checkValidationAmount()
+        }
+
+        mViewBinding.ivChange.setOnClickListener {
+            exChangeFromAndTo()
         }
 
         mViewBinding.fromSpinner.onItemSelectedListener =
@@ -118,11 +133,13 @@ class CurrencyConverterFragment : Fragment() {
                     position: Int,
                     id: Long
                 ) {
-                    println("From Selected Language ${allLanguages.get(position)}")
-                    val countryCode = getCountryCode(allLanguages.get(position))
+                    println("From Selected Language ${allLanguages[position]}")
+                    fromSelectedCountry = allLanguages[position]
+                    val countryCode = getCountryCode(allLanguages[position])
                     val currencySymbol = getSymbol(countryCode)
-                    fromSelectedItem = currencySymbol
-                    checkAmount()
+                    fromSelectedCurrency = currencySymbol
+//                    if (isApiCalled)
+//                        checkAmount()
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -138,17 +155,25 @@ class CurrencyConverterFragment : Fragment() {
                     id: Long
                 ) {
                     println("To Selected Language ${allLanguages.get(position)}")
-                    val countryCode = getCountryCode(allLanguages.get(position))
+                    toSelectedCountry = allLanguages[position]
+                    val countryCode = getCountryCode(allLanguages[position])
                     val currencySymbol = getSymbol(countryCode)
-                    toSelectedItem = currencySymbol
-                    checkAmount()
+                    toSelectedCurrency = currencySymbol
+//                    checkAmount()
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
 
                 }
             }
+    }
 
+    private fun exChangeFromAndTo() {
+        var temp = fromSelectedCountry
+        fromSelectedCountry = toSelectedCountry
+        toSelectedCountry = temp
+        mViewBinding.fromSpinner.setSelection(getCountryPosition(fromSelectedCountry))
+        mViewBinding.toSpinner.setSelection(getCountryPosition(toSelectedCountry))
     }
 
     private fun setSpinnerItems() {
@@ -162,10 +187,22 @@ class CurrencyConverterFragment : Fragment() {
             }
         mViewBinding.fromSpinner.adapter = adapter
         mViewBinding.toSpinner.adapter = adapter
+
+        mViewBinding.fromSpinner.setSelection(getCountryPosition(fromSelectedCountry))
+        mViewBinding.toSpinner.setSelection(getCountryPosition(toSelectedCountry))
+
+    }
+
+    private fun getCountryPosition(countryName: String?): Int {
+        countryName?.let {
+            for (i in allLanguages.indices) {
+                if (allLanguages[i].equals(it, true)) return i
+            }
+        }
+        return 0
     }
 
     private fun getAllCountries(): ArrayList<String> {
-
         val locales = Locale.getAvailableLocales()
         val countries = ArrayList<String>()
         for (locale in locales) {
@@ -178,7 +215,6 @@ class CurrencyConverterFragment : Fragment() {
                         country
                     )
                 }
-
             }
         }
         countries.sort()
@@ -204,31 +240,42 @@ class CurrencyConverterFragment : Fragment() {
                     Resource.Status.SUCCESS -> {
                         val result = it.data
                         if (result?.success == true) {
-                            val formattedString = String.format("%,.2f", result.result)
+                            val formattedString =
+                                String.format(getString(R.string.generic_text), result.result)
                             mViewBinding.toTextview.text = formattedString
+                        } else {
+                            Snackbar.make(
+                                mViewBinding.llMain,
+                                getString(R.string.error_message),
+                                Snackbar.LENGTH_LONG
+                            ).show()
                         }
+                        mViewBinding.progressBar.visibility = View.GONE
+                        mViewBinding.btnConvert.visibility = View.VISIBLE
                     }
                     Resource.Status.ERROR -> {
                         Snackbar.make(
                             mViewBinding.llMain,
-                            "Ooops! something went wrong, Try again",
+                            getString(R.string.error_message),
                             Snackbar.LENGTH_LONG
-                        )
-                            // .withColor(ContextCompat.getColor(this, R.color.dark_red))
-                            // .setTextColor(ContextCompat.getColor(this, R.color.white))
-                            .show()
+                        ).show()
+                        mViewBinding.progressBar.visibility = View.GONE
+                        mViewBinding.btnConvert.visibility = View.VISIBLE
                     }
                     Resource.Status.LOADING -> {
-
+                        mViewBinding.progressBar.visibility = View.VISIBLE
+                        mViewBinding.btnConvert.visibility = View.GONE
                     }
                 }
             }
         }
     }
 
-    private fun convertAmount() {
-        val from = fromSelectedItem.toString()
-        val to = toSelectedItem.toString()
+    private fun callConvertAmountApi() {
+        mViewBinding.progressBar.visibility = View.VISIBLE
+        mViewBinding.btnConvert.visibility = View.GONE
+        val from = fromSelectedCurrency.toString()
+        val to = toSelectedCurrency.toString()
         val amount = mViewBinding.fromEdittext.text.toString().toDouble()
 
         //do the conversion
