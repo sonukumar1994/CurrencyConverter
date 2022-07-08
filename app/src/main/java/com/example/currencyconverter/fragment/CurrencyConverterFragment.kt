@@ -23,6 +23,7 @@ import com.example.currencyconverter.model.DataInfo
 import com.example.currencyconverter.viewmodel.MainViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -226,10 +227,15 @@ class CurrencyConverterFragment : Fragment() {
 
     private fun getSymbol(countryCode: String?): String? {
         val availableLocales = Locale.getAvailableLocales()
-        for (i in availableLocales.indices) {
-            if (availableLocales[i].country == countryCode
-            ) return Currency.getInstance(availableLocales[i]).currencyCode
-        }
+       try {
+           for (i in availableLocales.indices) {
+               if (availableLocales[i].country == countryCode
+               ) return Currency.getInstance(availableLocales[i]).currencyCode
+           }
+       }catch (e:Exception){
+           e.printStackTrace()
+           return ""
+       }
         return ""
     }
 
